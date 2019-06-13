@@ -1,0 +1,3 @@
+curl $1 -o mod.tar.gz &&
+tar -xvf mod.tar.gz &&
+rm mod.tar.gz
