@@ -1,0 +1,11 @@
+{
+  "name": "tests",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "fetch-cookie": "^0.7.2",
+    "node-fetch": "^2.6.0",
+    "read": "^1.0.7"
+  }
+}
