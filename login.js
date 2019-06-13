@@ -21,45 +21,38 @@ read(
 );
 
 // Function that makes a POST request to get an auth cookie.
-function postLoginData(url, user, pass) {
-  try {
-    // Yeah, Drupal likes it that way.
-    fetch(url, {
-      method: "POST",
-      mode: "cors",
-      cache: "no-cache",
-      crossDomain: true,
-      credentials: "include",
+async function postLoginData(url, user, pass) {
+  // Yeah, Drupal likes it that way.
+  const loginPromise = fetch(url, {
+    method: "POST",
+    mode: "cors",
+    cache: "no-cache",
+    crossDomain: true,
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: "name=" + user + "&pass=" + pass + "&form_id=" + "user_login_form"
+  });
+  // Yeah not the most awesome we to do it but hey...
+  const loginData = await loginPromise;
+  const urlFromResponse = loginData.url;
+  const splitUrl = urlFromResponse.split("/");
+  const userId = splitUrl[splitUrl.length - 1];
+  console.log("User ID: ", userId);
+  const userInfoPromise = fetch(
+    `${apiURL}/jsonapi/user/user?filter[uid]=${userId}`,
+    {
+      method: "GET",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
+        Accept: "application/json",
+        "Content-Type": "application/json"
       },
-      body: "name=" + user + "&pass=" + pass + "&form_id=" + "user_login_form"
-    })
-      .then(r => {
-        console.log("Logged... Now printing user info: ");
-        // Get User Drupal Id from response, not the fanciests of codes.
-        const urlFromResponse = r.url;
-        const splitUrl = urlFromResponse.split("/");
-        const userId = splitUrl[splitUrl.length - 1];
-        console.log("User ID: ", userId);
-        // Use jsonapi to get user info.
-        fetch(`${apiURL}/jsonapi/user/user?filter[uid]=${userId}`, {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json"
-          },
-          cache: "default",
-          credentials: "include"
-        })
-          .then(r => {
-            return r.json();
-          })
-          .then(r => console.dir(r))
-          .catch(er => console.log(er));
-      })
-      .catch(er => console.log(er));
-  } catch (er) {
-    console.log(er);
-  }
+      cache: "default",
+      credentials: "include"
+    }
+  );
+  const userInfo = await userInfoPromise;
+  console.log(await userInfo.json());
+  return await loginPromise;
 }
