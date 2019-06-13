@@ -8,17 +8,21 @@ const apiURL = "http://drupalvm.test";
 // Removes node and command.
 var args = process.argv.slice(2);
 
+loginToDrupal();
+
 // Read password.
-read(
-  {
-    prompt: "The username should be the first argument. \nPassword: ",
-    silent: true
-  },
-  function(er, password) {
-    // Login to drupaal.
-    postLoginData(`${apiURL}/user/login`, args[0], password);
-  }
-);
+async function loginToDrupal() {
+  read(
+    {
+      prompt: "The username should be the first argument. \nPassword: ",
+      silent: true
+    },
+    (er, password) => {
+      // Login to drupaal.
+      return postLoginData(`${apiURL}/user/login`, args[0], password);
+    }
+  );
+}
 
 // Function that makes a POST request to get an auth cookie.
 async function postLoginData(url, user, pass) {
@@ -53,6 +57,10 @@ async function postLoginData(url, user, pass) {
     }
   );
   const userInfo = await userInfoPromise;
+  // Use console.dir to print an object if needed.
+  // Shorthand for console.log(util.inspect(obj, {depth: null}));
   console.log(await userInfo.json());
   return await loginPromise;
 }
+
+module.exports = postLoginData;
