@@ -3,12 +3,10 @@ const read = require("read");
 const nodeFetch = require("node-fetch");
 const fetch = require("fetch-cookie/node-fetch")(nodeFetch);
 
-// API URL
-const apiURL = "http://drupalvm.test";
+// Constants.
+const consts = require("./consts");
 // Removes node and command.
 var args = process.argv.slice(2);
-
-loginToDrupal();
 
 // Read password.
 async function loginToDrupal() {
@@ -19,7 +17,7 @@ async function loginToDrupal() {
     },
     (er, password) => {
       // Login to drupaal.
-      return postLoginData(`${apiURL}/user/login`, args[0], password);
+      return postLoginData(`${consts.apiURL}/user/login`, args[0], password);
     }
   );
 }
@@ -43,9 +41,10 @@ async function postLoginData(url, user, pass) {
   const urlFromResponse = loginData.url;
   const splitUrl = urlFromResponse.split("/");
   const userId = splitUrl[splitUrl.length - 1];
-  console.log("User ID: ", userId);
+  // Prints User ID.
+  // console.log("User ID: ", userId);
   const userInfoPromise = fetch(
-    `${apiURL}/jsonapi/user/user?filter[uid]=${userId}`,
+    `${consts.apiURL}/jsonapi/user/user?filter[uid]=${userId}`,
     {
       method: "GET",
       headers: {
@@ -56,11 +55,13 @@ async function postLoginData(url, user, pass) {
       credentials: "include"
     }
   );
-  const userInfo = await userInfoPromise;
+  let userInfo = await userInfoPromise;
   // Use console.dir to print an object if needed.
   // Shorthand for console.log(util.inspect(obj, {depth: null}));
-  console.log(await userInfo.json());
-  return await loginPromise;
+  // Prints user data.
+  // userInfo = await userInfo.json();
+  // console.log("User data: ", await userInfo.data);
+  return loginPromise;
 }
 
-module.exports = postLoginData;
+module.exports = loginToDrupal;
